@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,10 +12,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject bigValueSelected;
     [SerializeField] private GameObject upRectangle;
     [SerializeField] private GameObject downRectangle;
+    [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject resultPanel;
+     
+    [SerializeField] private AudioClip trueClip;
+    [SerializeField] private AudioClip falseClip;
+    [SerializeField] private AudioClip beginClip;
+    [SerializeField] private AudioClip endClip;
+    [SerializeField] private Text scoreText;
 
     private TimeManager timeManager;
     private CircleManager circleManager;
     private TrueFalseManager trueFalseManager;
+    private ResultManager resultManager;
+    private AudioSource audioSource;
 
     private int counterGame;
     private int whickGame;
@@ -23,20 +33,31 @@ public class GameManager : MonoBehaviour
     private int downValue;
     private int bigValue;
     private int buttonValue;
+    private int totalScore;
+    private int increaseScore;
+    private int trueQuestion;
+    private int falseQuestion;
 
     private void Awake()
     {
         circleManager = Object.FindObjectOfType<CircleManager>();
         timeManager = Object.FindObjectOfType<TimeManager>();
         trueFalseManager = Object.FindObjectOfType<TrueFalseManager>();
+        resultManager = Object.FindObjectOfType<ResultManager>();
+        audioSource = GetComponent<AudioSource>();
     }
     void Start()
     {
+        resultPanel.SetActive(false);
+        totalScore = 0;
         counterGame = 0;
         whickGame = 0;
+        trueQuestion = 0;
+        falseQuestion = 0;
         //Ýkiside ayný aradaki fark birden fazla Child'i olan 
         upRectangle.transform.GetChild(0).GetComponent<Text>().text = "";
         downRectangle.transform.GetChild(0).GetComponent<Text>().text = "";
+        scoreText.text = "0";
         SceneScreenUpdate();
     }
     void SceneScreenUpdate()
@@ -49,6 +70,7 @@ public class GameManager : MonoBehaviour
     }
     public void StartGame()
     {
+        audioSource.PlayOneShot(beginClip);
         scoreGrap.GetComponent<CanvasGroup>().DOFade(0, 0.2f);
         bigValueSelected.GetComponent<CanvasGroup>().DOFade(1, 0.3f);
         WhichGame();
@@ -60,22 +82,27 @@ public class GameManager : MonoBehaviour
         if (counterGame < 5)
         {
             whickGame = 1;
+            increaseScore = 25;
         }
         else if (counterGame >=5 && counterGame < 10)
         {
             whickGame = 2;
+            increaseScore = 50;
         }
         else if (counterGame >= 10 && counterGame < 15)
         {
             whickGame = 3;
+            increaseScore = 75;
         }
         else if(counterGame >= 15 && counterGame < 20)
         {
             whickGame=4;
+            increaseScore = 100;
         }
         else if(counterGame >= 20 && counterGame <25)
         {
             whickGame = 5;
+            increaseScore = 125;
         }
         else
         {
@@ -267,6 +294,10 @@ public class GameManager : MonoBehaviour
             circleManager.CircleLightOpen(counterGame % 5);
             counterGame++;
             WhichGame();
+            totalScore += increaseScore;
+            scoreText.text = totalScore.ToString();
+            trueQuestion++;
+            audioSource.PlayOneShot(trueClip);
         }
         else
         {
@@ -278,6 +309,31 @@ public class GameManager : MonoBehaviour
             }
             circleManager.CircleLightClose();
             WhichGame();
+            falseQuestion++;
+            audioSource.PlayOneShot(falseClip);
         }
+    }
+    public void PauseButton()
+    {
+        pausePanel.SetActive(true);
+    }
+    public void AgainButton()
+    {
+        pausePanel.SetActive(false);
+        SceneManager.LoadScene(1);
+    }
+    public void MenuButton()
+    {
+        SceneManager.LoadScene(0);
+    }
+    public void ExitButton()
+    {
+        Application.Quit();
+    }
+    public void FinishedPanel()
+    {
+        audioSource.PlayOneShot(endClip);
+        resultPanel.SetActive(true);
+        resultManager.ResultPanelFields(trueQuestion,falseQuestion,totalScore);
     }
 }

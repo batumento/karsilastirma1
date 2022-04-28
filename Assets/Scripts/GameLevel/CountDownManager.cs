@@ -6,12 +6,18 @@ using DG.Tweening;
 
 public class CountDownManager : MonoBehaviour
 {
+    [SerializeField] private GameObject pauseButton;
     private GameManager gameManager;
     private void Awake()
     {
         gameManager = Object.FindObjectOfType<GameManager>();
     }
     void Start()
+    {
+        StartCoroutine(CountDownRoutine());
+    }
+
+    public void AgainButtonClick()
     {
         StartCoroutine(CountDownRoutine());
     }
@@ -40,6 +46,7 @@ public class CountDownManager : MonoBehaviour
         gameObject.GetComponent<RectTransform>().DOScale(0, 0.5f).SetEase(Ease.InBack);
         yield return new WaitForSeconds(0.6f);
         StopAllCoroutines();
+
 
         gameManager.StartGame();
     }

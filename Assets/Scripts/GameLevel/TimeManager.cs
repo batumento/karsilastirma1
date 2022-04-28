@@ -5,7 +5,14 @@ using UnityEngine.UI;
 
 public class TimeManager : MonoBehaviour
 {
+    private GameManager gameManager;
+
     private int time = 90;
+
+    private void Awake()
+    {
+        gameManager = Object.FindObjectOfType<GameManager>();
+    }
     public void StartTime()
     {
         StartCoroutine(TimeRoutine());
@@ -25,6 +32,6 @@ public class TimeManager : MonoBehaviour
             yield return new WaitForSeconds(1);
             time--;
         }
-        Debug.Log("Bitti!");
+        gameManager.FinishedPanel();
     }
 }
