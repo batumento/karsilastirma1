@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
 
     private TimeManager timeManager;
     private CircleManager circleManager;
+    private TrueFalseManager trueFalseManager;
 
     private int counterGame;
     private int whickGame;
@@ -27,10 +28,11 @@ public class GameManager : MonoBehaviour
     {
         circleManager = Object.FindObjectOfType<CircleManager>();
         timeManager = Object.FindObjectOfType<TimeManager>();
+        trueFalseManager = Object.FindObjectOfType<TrueFalseManager>();
     }
     void Start()
     {
-        counterGame = 20;
+        counterGame = 0;
         whickGame = 0;
         //Ýkiside ayný aradaki fark birden fazla Child'i olan 
         upRectangle.transform.GetChild(0).GetComponent<Text>().text = "";
@@ -122,9 +124,14 @@ public class GameManager : MonoBehaviour
         {
             bigValue = upValue;
         }
-        else
+        else if(downValue > upValue)
         {
             bigValue = downValue;
+        }
+        if (upValue == downValue)
+        {
+            FirstFunction();
+            return;
         }
 
         upRectangle.transform.GetChild(0).GetComponent<Text>().text = upValue.ToString();
@@ -256,13 +263,21 @@ public class GameManager : MonoBehaviour
 
         if (buttonValue == bigValue)
         {
+            trueFalseManager.TrueIconSetActive();
             circleManager.CircleLightOpen(counterGame % 5);
             counterGame++;
             WhichGame();
         }
         else
         {
-            EventSystem.current.currentSelectedGameObject.GetComponent<Image>().color = Color.red;
+            trueFalseManager.FalseIconSetActive();
+            counterGame -= (counterGame % 5 + 5);
+            if (counterGame < 0)
+            {
+                counterGame = 0;
+            }
+            circleManager.CircleLightClose();
+            WhichGame();
         }
     }
 }
